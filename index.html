@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Dashboard</title>
+  <link rel="icon" href="sun favicon.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ... Your CSS as before ... */
+  </style>
+</head>
+<body>
+  <!-- Loading Overlay -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Settings Toggle -->
+  <div class="settings-icon"><i class="fas fa-cog"></i></div>
+
+  <!-- Settings Panel -->
+  <div class="settings-panel">
+    <!-- Settings content (Location, Weather, Calendar, Shopping, Display, Widgets) -->
+  </div>
+
+  <!-- Top Row: Time & Current Weather -->
+  <div class="top-row">
+    <div class="time-date">
+      <div class="time-display"></div>
+      <div class="date-display"></div>
+    </div>
+    <div class="weather-now">
+      <div class="temp-display"></div>
+      <div class="feels-like"></div>
+    </div>
+  </div>
+
+  <!-- Today Box -->
+  <div class="current-day">
+    <div class="big-day"></div>
+    <div class="today-label">Today</div>
+    <div class="today-weather"></div>
+  </div>
+
+  <!-- Middle Section: Events & Forecast & Shopping -->
+  <div class="middle-section">
+    <div class="today-events"></div>
+    <div class="forecast-days">
+      <div class="day-forecast"></div>
+      <div class="day-forecast"></div>
+      <div class="day-forecast"></div>
+      <div class="day-forecast"></div>
+    </div>
+    <div class="shopping-list"></div>
+  </div>
+
+  <!-- Hourly Forecast -->
+  <div class="hourly-forecast">
+    <div class="hour-forecast"></div>
+    <div class="hour-forecast"></div>
+    <div class="hour-forecast"></div>
+    <div class="hour-forecast"></div>
+    <div class="hour-forecast"></div>
+    <div class="hour-forecast"></div>
+    <div class="hour-forecast"></div>
+    <div class="hour-forecast"></div>
+  </div>
+
+  <script>
+    // Settings object
+    let settings = {
+      location: { useBrowser: true, city: 'Arlington', state: 'VA', country: 'USA' },
+      weather: { apiKey: '', units: 'imperial', refreshInterval: 15 },
+      calendar: { calendars: [], refreshInterval: 5 },
+      shopping: { service: 'google', todoistToken: '', todoistProject: 'Shopping', gTasksList: 'Shopping', refreshInterval: 5 },
+      display: { darkModeStart: '19:00', darkModeEnd: '07:00', kioskMode: false },
+      widgets: { weather: true, calendar: true, shopping: true, hourly: true }
+    };
+
+    /* ========= Helper Functions ========= */
+    function loadSettings() { /* ... load and apply settings ... */ }
+    function saveSettings() { /* ... collect form data, save, apply kiosk, re-init ... */ }
+    function resetSettings() { /* ... clear localStorage and reload ... */ }
+
+    function addCalendarInput(name = '', url = '', color = '#4285F4', enabled = true) { /* ... */ }
+    function collectCalendarData() { /* ... */ }
+
+    async function parseIcsCalendar(url) { /* ... */ }
+    function parseIcsDate(icsDate) { /* ... */ }
+    async function loadCalendarEvents() { /* ... */ }
+
+    async function resolveLatLon() { /* ... geocode logic ... */ }
+    async function fetchAndDisplayWeather() { /* ... fetch OWM and call update... */ }
+
+    function updateCurrentWeather(current) { /* ... update .weather-now ... */ }
+    function updateHourlyForecast(hourly) { /* ... update .hour-forecast items ... */ }
+    function updateDailyForecast(daily) { /* ... update .day-forecast items ... */ }
+
+    function updateClock() {
+      const now = new Date();
+      // Time
+      const h = now.getHours() % 12 || 12;
+      const m = now.getMinutes().toString().padStart(2, '0');
+      const s = now.getSeconds().toString().padStart(2, '0');
+      document.querySelector('.time-display').innerHTML = `${h}:${m}<sup>${s}</sup>`;
+      // Date
+      document.querySelector('.date-display').textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    }
+
+    /* ======= Initialization ======= */
+    async function initializeDashboard() {
+      loadSettings();
+      await loadCalendarEvents();
+      if (settings.widgets.weather) {
+        await fetchAndDisplayWeather();
+        setInterval(fetchAndDisplayWeather, settings.weather.refreshInterval * 60000);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initializeDashboard();
+      document.getElementById('loading-overlay').style.display = 'none';
+      updateClock();
+      setInterval(updateClock, 1000);
+    });
+
+    /* ======= Event Listeners ======= */
+    document.querySelector('.settings-icon').addEventListener('click', () => document.querySelector('.settings-panel').classList.add('open'));
+    document.querySelector('.close-settings').addEventListener('click', () => document.querySelector('.settings-panel').classList.remove('open'));
+    document.getElementById('add-calendar').addEventListener('click', addCalendarInput);
+    document.getElementById('save-settings').addEventListener('click', saveSettings);
+    document.getElementById('reset-settings').addEventListener('click', resetSettings);
+    document.getElementById('use-browser-location').addEventListener('change', function() { document.getElementById('manual-location-input').style.display = this.checked ? 'none' : 'block'; });
+    document.getElementById('shopping-service').addEventListener('change', function() {
+      document.getElementById('todoist-settings').style.display = this.value === 'todoist' ? 'block' : 'none';
+      document.getElementById('google-tasks-settings').style.display = this.value === 'google' ? 'block' : 'none';
+    });
+  </script>
+</body>
+</html>
